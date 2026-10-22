@@ -15,6 +15,8 @@ blake2b_long(void *pout, size_t outlen, const void *in, size_t inlen)
     uint8_t *out = (uint8_t *) pout;
     crypto_generichash_blake2b_state blake_state;
     uint8_t outlen_bytes[4 /* sizeof(uint32_t) */] = { 0 };
+    uint8_t out_buffer[crypto_generichash_blake2b_BYTES_MAX];
+    uint8_t in_buffer[crypto_generichash_blake2b_BYTES_MAX];
     int     ret = -1;
 
     if (outlen > UINT32_MAX) {
@@ -41,8 +43,6 @@ blake2b_long(void *pout, size_t outlen, const void *in, size_t inlen)
         TRY(crypto_generichash_blake2b_final(&blake_state, out, outlen));
     } else {
         uint32_t toproduce;
-        uint8_t  out_buffer[crypto_generichash_blake2b_BYTES_MAX];
-        uint8_t  in_buffer[crypto_generichash_blake2b_BYTES_MAX];
         TRY(crypto_generichash_blake2b_init(
             &blake_state, NULL, 0U, crypto_generichash_blake2b_BYTES_MAX));
         TRY(crypto_generichash_blake2b_update(&blake_state, outlen_bytes,
@@ -74,6 +74,8 @@ blake2b_long(void *pout, size_t outlen, const void *in, size_t inlen)
     }
 fail:
     sodium_memzero(&blake_state, sizeof(blake_state));
+    sodium_memzero(out_buffer, sizeof(out_buffer));
+    sodium_memzero(in_buffer, sizeof(in_buffer));
     return ret;
 #undef TRY
 }

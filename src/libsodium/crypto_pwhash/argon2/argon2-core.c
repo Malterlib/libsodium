@@ -174,6 +174,7 @@ free_memory(block_region *region)
             return; /* LCOV_EXCL_LINE */
         }
 #else
+        sodium_memzero(region->memory, region->size);
         free(region->base);
 #endif
     }
